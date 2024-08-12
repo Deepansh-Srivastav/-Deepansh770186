@@ -1,44 +1,61 @@
-// let launches = require("./launches.mongo.js")
+let launchesDatabase = require("./launches.mongo.js")
+let planets = require("./planets.mongo.js")
 
 let latestFlightNumber = 100
 
 const launches = new Map()
 
 const launch = {
-    flightNumber : 100,
-    mission:"Kepler Exploration X",
-    rocket:"Explorer IS1",
-    launchDate : new Date('December 27, 2030'),
-    target:"Kepler-422 b",
-    customers:["NASA","ISRO"],
-    upcoming:true,
-    success:true
+    flightNumber: 100,
+    mission: "Kepler Exploration X",
+    rocket: "Explorer IS1",
+    launchDate: new Date('12/12/2030'),
+    target: "Kepler-1652 b",
+    customers: ["NASA"],
+    upcoming: true,
+    success: true
 }
 
-launches.set(launch.flightNumber, launch)
+saveLaunch(launch)
 
-function getAllLaunches(){
-    return Array.from(launches.values())
+
+async function getAllLaunches() {
+    return await launchesDatabase.find({})
 }
 
-function addNewLaunch(launchData){
+async function saveLaunch(launchData) {
 
-    latestFlightNumber = latestFlightNumber+1
+    const isValidPlanet = await planets.findOne({
+        keplerName: launchData.target
+    })
 
-    const predefinedLaunchData = {
-        success:true,
-        upcoming:true,
-        flightNumber:latestFlightNumber
+    if (!isValidPlanet) {
+        // return console.error("Invalid Planet")
+        throw new Error("Invalid PLanet Name");
     }
 
-    launches.set(latestFlightNumber,Object.assign(launchData, predefinedLaunchData))
+    await launchesDatabase.updateOne({ flightNumber: launchData.flightNumber }, launchData, { upsert: true })
+
 }
 
-function isValidLaunch(id){
+function addNewLaunch(launchData) {
+
+    latestFlightNumber = latestFlightNumber + 1
+
+    const predefinedLaunchData = {
+        success: true,
+        upcoming: true,
+        flightNumber: latestFlightNumber
+    }
+
+    launches.set(latestFlightNumber, Object.assign(launchData, predefinedLaunchData))
+}
+
+function isValidLaunch(id) {
     return launches.has(id)
 }
 
-function abortLaunch(id){
+function abortLaunch(id) {
     // launches.delete(id)
 
     let launch = launches.get(id)
@@ -57,7 +74,7 @@ function abortLaunch(id){
 
 }
 
-module.exports= {
+module.exports = {
     getAllLaunches,
     addNewLaunch,
     isValidLaunch,

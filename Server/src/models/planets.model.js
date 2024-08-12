@@ -43,13 +43,21 @@ async function getAllPlanets() {
 
 async function savePlanets(planetsData) {
 
-    await planets.updateOne({
-        keplerName: planetsData.kepler_name
-    }, {
-        keplerName: planetsData.kepler_name
-    }, {
-        upsert: true
-    })
+    try{
+        await planets.updateOne({
+            keplerName: planetsData.kepler_name
+        }, {
+            keplerName: planetsData.kepler_name
+        }, {
+            upsert: true
+        })
+    }
+    catch(err){
+        console.log("Cant save planet");
+        
+    }
+
+
 }
 
 
