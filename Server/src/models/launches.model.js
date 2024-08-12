@@ -1,23 +1,17 @@
 let launchesDatabase = require("./launches.mongo.js")
 let planets = require("./planets.mongo.js")
 
-let latestFlightNumber = 100
+let DEFAULT_FLIGHT_NUMBER = 100
 
-const launches = new Map()
+async function getLatestFlightNumber() {
+    const latestLaunch = await launchesDatabase.findOne().sort("-flightNumber")
 
-const launch = {
-    flightNumber: 100,
-    mission: "Kepler Exploration X",
-    rocket: "Explorer IS1",
-    launchDate: new Date('12/12/2030'),
-    target: "Kepler-1652 b",
-    customers: ["NASA"],
-    upcoming: true,
-    success: true
+    if (!latestLaunch) {
+        return DEFAULT_FLIGHT_NUMBER
+    }
+
+    return latestLaunch.flightNumber
 }
-
-saveLaunch(launch)
-
 
 async function getAllLaunches() {
     return await launchesDatabase.find({})
@@ -34,21 +28,22 @@ async function saveLaunch(launchData) {
         throw new Error("Invalid PLanet Name");
     }
 
-    await launchesDatabase.updateOne({ flightNumber: launchData.flightNumber }, launchData, { upsert: true })
+    await launchesDatabase.findOneAndUpdate({ flightNumber: launchData.flightNumber }, launchData, { upsert: true })
 
 }
 
-function addNewLaunch(launchData) {
+async function saveNewLaunch(launch){
 
-    latestFlightNumber = latestFlightNumber + 1
+    let newFlightNumber = await getLatestFlightNumber() + 1
 
-    const predefinedLaunchData = {
-        success: true,
-        upcoming: true,
-        flightNumber: latestFlightNumber
-    }
+    const newLaunch = Object.assign(launch, {
+        success:true,
+        upcoming:true,
+        flightNumber: newFlightNumber,
+        customers: ["ISRO", "NASA"]
+    })
 
-    launches.set(latestFlightNumber, Object.assign(launchData, predefinedLaunchData))
+    await saveLaunch(newLaunch)
 }
 
 function isValidLaunch(id) {
@@ -76,7 +71,7 @@ function abortLaunch(id) {
 
 module.exports = {
     getAllLaunches,
-    addNewLaunch,
     isValidLaunch,
-    abortLaunch
+    abortLaunch,
+    saveNewLaunch
 }
