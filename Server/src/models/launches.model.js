@@ -32,13 +32,13 @@ async function saveLaunch(launchData) {
 
 }
 
-async function saveNewLaunch(launch){
+async function saveNewLaunch(launch) {
 
     let newFlightNumber = await getLatestFlightNumber() + 1
 
     const newLaunch = Object.assign(launch, {
-        success:true,
-        upcoming:true,
+        success: true,
+        upcoming: true,
         flightNumber: newFlightNumber,
         customers: ["ISRO", "NASA"]
     })
@@ -46,26 +46,18 @@ async function saveNewLaunch(launch){
     await saveLaunch(newLaunch)
 }
 
-function isValidLaunch(id) {
-    return launches.has(id)
+async function isValidLaunch(id) {
+    return await launchesDatabase.findOne({ flightNumber: id })
 }
 
-function abortLaunch(id) {
-    // launches.delete(id)
+async function abortLaunch(id) {
 
-    let launch = launches.get(id)
+    return await launchesDatabase.findOneAndUpdate({ flightNumber: id }, {
+        upcoming: false,
+        success: false
+    })
 
-    launch.upcoming = false
-    launch.success = false
-
-    launches.set(id, launch);
-
-    // or another approach 
-    // launches.get(id).upcoming = false
-    // launches.get(id).success = false
-
-    return
-
+    // return result.ok === 1 && result.nModified
 
 }
 

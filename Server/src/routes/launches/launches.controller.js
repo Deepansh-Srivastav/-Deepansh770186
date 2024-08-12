@@ -26,20 +26,20 @@ async function httpAddNewLaunch(req, res) {
     return res.status(201).json(launch)
 }
 
-function httpAbortLaunch(req, res) {
+async function httpAbortLaunch(req, res) {
     const launchId = Number(req.params.id)
 
-    if (!isValidLaunch(launchId)) {
+    const validLaunch = await isValidLaunch(launchId)
+
+    if (!validLaunch) {
         return res.status(400).json({
             error: "The launch does not exist"
         })
     }
 
-    abortLaunch(launchId)
+    const result = await abortLaunch(launchId)
 
-    res.status(200).json({
-        success: "The launch exists and is removed"
-    })
+    res.status(200).json(result)
 
 }
 module.exports = {
