@@ -25,6 +25,7 @@ const Upcoming = props => {
     abortLaunch,
   } = props;
 
+
   const tableBody = useMemo(() => {
     return launches?.filter((launch) => launch.upcoming)
       .map((launch) => {
@@ -47,7 +48,7 @@ const Upcoming = props => {
 
   return <Appear id="upcoming" animate show={entered}>
     <Paragraph>Upcoming missions including both SpaceX launches and newly scheduled Zero to Mastery rockets.</Paragraph>
-    <Words animate>Warning! Clicking on the ✖ aborts the mission.</Words>
+    <Words animate>Waqrning!! Clicking on the ✖ aborts the mission.</Words>
     <Table animate show={entered}>
       <table style={{tableLayout: "fixed"}}>
         <thead>
